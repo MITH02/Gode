@@ -39,6 +39,7 @@ public class ApplicationConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
 				.requestMatchers("/", "/health").permitAll()
 				.requestMatchers("/actuator/health").permitAll()
+				.requestMatchers("/actuator/**").permitAll()
 				.requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
