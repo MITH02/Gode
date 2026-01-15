@@ -38,6 +38,7 @@ public class ApplicationConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
 				.requestMatchers("/", "/health").permitAll()
+				.requestMatchers("/actuator/health").permitAll()
 				.requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
