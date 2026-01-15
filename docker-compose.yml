@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: pledge-postgres
+    environment:
+      POSTGRES_DB: pledge_master
+      POSTGRES_USER: pledge_user
+      POSTGRES_PASSWORD: pledge_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pledge-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pledge_user -d pledge_master"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Pledge Master Application
+  pledge-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pledge-master-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pledge_master
+      SPRING_DATASOURCE_USERNAME: pledge_user
+      SPRING_DATASOURCE_PASSWORD: pledge_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pledge-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  pledge-network:
+    driver: bridge
